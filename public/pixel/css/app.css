@@ -1,0 +1,30 @@
+.admin-table {
+    margin-bottom: 0px;
+}
+
+.progress-bar {
+    line-height: 12px;
+}
+
+.ui-autocomplete{
+    max-height: 300px;
+    overflow: auto;
+}
+#listapp{
+    margin: 0px;
+    border: 1px solid #d1d1d1;
+    padding: 10px;
+}
+#listapp li{
+    list-style: none;
+    padding: 5px 0px;
+    margin: 0px;
+}
+
+.un_published {
+    color: #FF0000;
+}
+
+.published {
+    color: #43a543;
+}
