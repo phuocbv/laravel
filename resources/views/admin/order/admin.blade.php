@@ -237,9 +237,15 @@
                                                     <td style="width:20ex" class="text-center line_item_price" data-id="{{ $lineitem->id }}">
                                                         @if($lineitem->quantity > 1)
                                                             <span class="label label-info label-outline">${{$lineitem->price }} x {{ $lineitem->quantity }}</span>
+
                                                         @else
                                                             <span class="label label-outline">${{$lineitem->price }} x {{ $lineitem->quantity }}</span>
                                                         @endif
+                                                            <br>
+                                                            <span class="input_line_item" style="display:none;">
+                                                            <input type="text" style="width: 60px" ><br>
+                                                            <input type="text" style="width: 60px" >
+                                                            </span>
                                                     </td>
                                                     <td class="text-center" style="width:25ex">
                                                         <div id="fulfill_status_{{$lineitem->id}}">
@@ -428,12 +434,7 @@
                 var current = $(this);
                 var lineItemPrice = current.closest('.line_item_price');
                 current.remove();
-                lineItemPrice.append('<div class="form-group col-sm-2">\n' +
-                    '        <input type="text" class="form-control" style="width: 100%">\n' +
-                    '    </div>\n' +
-                    '    <div class="form-group col-sm-2">\n' +
-                    '        <input type="text" class="form-control" style="width: 100%" value="ss">\n' +
-                    '    </div>');
+                lineItemPrice.find('.input_line_item').addStyle('display', 'block');
             });
         });
 
