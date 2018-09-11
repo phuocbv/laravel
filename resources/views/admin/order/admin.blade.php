@@ -234,18 +234,24 @@
                                             <table class="table b-a-0" id="lineForm_{{$row->id}}">
                                                 <tr class="{{$color}}">
                                                     <td>{{ $lineitem->title }}</td>
-                                                    <td style="width:20ex" class="text-center line_item_price" data-id="{{ $lineitem->id }}">
-                                                        @if($lineitem->quantity > 1)
-                                                            <span class="label label-info label-outline">${{$lineitem->price }} x {{ $lineitem->quantity }}</span>
-
-                                                        @else
-                                                            <span class="label label-outline">${{$lineitem->price }} x {{ $lineitem->quantity }}</span>
-                                                        @endif
-                                                            <br>
-                                                            <span class="input_line_item" style="display:none;">
-                                                            <input type="text" style="width: 60px" ><br>
-                                                            <input type="text" style="width: 60px" >
-                                                            </span>
+                                                    <td style="width:20ex; padding: 5px" class="text-center line_item_price" data-id="{{ $lineitem->id }}">
+                                                        <span class="display_money">
+                                                            {{--@if($lineitem->quantity > 1)--}}
+                                                                <span class="infor" style="cursor: pointer; color: #2db4dd;" data-price="{{ $lineitem->price }}" data-quantity="{{ $lineitem->quantity }}">
+                                                                    ${{$lineitem->price * $lineitem->quantity }}
+                                                                </span><br>
+                                                                <span class="label label-info label-outline" style="cursor: pointer;">${{$lineitem->price }} x {{ $lineitem->quantity }}</span>
+                                                            {{--@else--}}
+                                                                {{--<span class="infor" style="cursor: pointer;" data-price="{{ $lineitem->price }}" data-quantity="{{ $lineitem->quantity }}">--}}
+                                                                    {{--${{$lineitem->price * $lineitem->quantity }}--}}
+                                                                {{--</span><br>--}}
+                                                                {{--<span class="label label-outline" style="cursor: pointer;">${{$lineitem->price }} x {{ $lineitem->quantity }}</span>--}}
+                                                            {{--@endif--}}
+                                                        </span>
+                                                        <span class="input_line_item" style="display:none;">
+                                                            <input type="text" class="input_money" style="width: 60px; border-radius: .25em;">
+                                                            <input type="text" class="input_sum" style="width: 60px; border-radius: .25em;">
+                                                        </span>
                                                     </td>
                                                     <td class="text-center" style="width:25ex">
                                                         <div id="fulfill_status_{{$lineitem->id}}">
@@ -430,13 +436,87 @@
                 });
                 getOrders();
             });
-            $('.table_order').on('click', '.line_item_price span.label-outline', function () {
+            var tableOrder = $('.table_order');
+            tableOrder.on('click', 'span.display_money', function () {
                 var current = $(this);
                 var lineItemPrice = current.closest('.line_item_price');
-                current.remove();
-                lineItemPrice.find('.input_line_item').addStyle('display', 'block');
+                current.css('display', 'none');
+                var infor = current.find('.infor');
+                lineItemPrice.find('input.input_money').val(infor.data('price'));
+                lineItemPrice.find('input.input_sum').val(infor.data('quantity'));
+                lineItemPrice.find('.input_line_item').css('display', 'block');
+
             });
+
+            tableOrder.on('keypress', 'input.input_money', function (event) {
+                var current = $(this);
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+
+                if(keycode === 13){
+                    var result = updateLineItem(current, current.closest('.line_item_price').data('id'));
+                    result.done(function (data) {
+                        if (data.status === 'success') {
+                            var infor = current.closest('.line_item_price').find('.infor');
+                            infor.data('price', data.data.price);
+                            infor.data('quantity', data.data.quantity);
+                            infor.html('$' + (parseInt(data.data.price) * parseInt(data.data.quantity)));
+                            var labelOutline = current.closest('.line_item_price').find('.label-outline');
+                            labelOutline.html('$' + data.data.price + ' x ' + data.data.quantity);
+                        }
+                    });
+                    current.closest('.input_line_item').css('display', 'none');
+                    current.closest('.line_item_price').find('span.display_money').css('display', 'block');
+                }
+            });
+//            tableOrder.on('focusout', 'input.input_money', function () {
+//                var current = $(this);
+//                current.closest('.input_line_item').css('display', 'none');
+//                current.closest('.line_item_price').find('span.display_money').css('display', 'block');
+//            });
+            tableOrder.on('keypress', 'input.input_sum', function (event) {
+                var current = $(this);
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+
+                if(keycode === 13){
+                    var result = updateLineItem(current, current.closest('.line_item_price').data('id'));
+                    result.done(function (data) {
+                        if (data.status === 'success') {
+                            var infor = current.closest('.line_item_price').find('.infor');
+                            infor.data('price', data.data.price);
+                            infor.data('quantity', data.data.quantity);
+                            infor.html('$' + (parseInt(data.data.price) * parseInt(data.data.quantity)));
+                            var labelOutline = current.closest('.line_item_price').find('.label-outline');
+                            labelOutline.html('$' + data.data.price + ' x ' + data.data.quantity);
+                        }
+                    });
+                    current.closest('.input_line_item').css('display', 'none');
+                    current.closest('.line_item_price').find('span.display_money').css('display', 'block');
+                }
+            });
+//            tableOrder.on('focusout', 'input.input_sum', function () {
+//                var current = $(this);
+//                current.closest('.input_line_item').css('display', 'none');
+//                current.closest('.line_item_price').find('span.display_money').css('display', 'block');
+//            });
         });
+        
+        function updateLineItem(current, lineItemId) {
+            var parent = current.closest('.input_line_item');
+            var price = parent.find('input.input_money').val();
+            var quantity = parent.find('input.input_sum').val();
+            if (price === '' || quantity === '') return;
+            var data = {
+                price: price,
+                quantity: quantity,
+                lineItemId: lineItemId
+            };
+            var ajax =  $.ajax({
+                type: 'POST',
+                url: '{{ route('admin.lineItem.updateLineItem') }}',
+                data: data
+            });
+            return ajax;
+        }
 
         function getOrders()
         {

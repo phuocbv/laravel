@@ -52,6 +52,8 @@ Route::group(['prefix'=>'cmanager', 'as'=>'admin.',  'middleware'=>'auth',  'nam
     Route::post('/order/checksheetsession', 'OrderController@checkSheetSession')->name('order.checksheetsession');
     Route::post('/order/checksheetcron', 'OrderController@checkSheetCron')->name('order.checksheetcron');
 
+    Route::post('/lineItem/updateLineItem', 'LineItemController@updateLineItem')->name('lineItem.updateLineItem');
+
 
 
     Route::get('/member', 'MemberController@index')->name('member');

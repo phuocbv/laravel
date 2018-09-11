@@ -36,4 +36,17 @@ class LineItemController extends Controller
             'data' => $lineItem
         ]);
     }
+
+    public function updateLineItem(Request $request) {
+        $data = $request->only('price', 'quantity', 'lineItemId');
+        $lineItem = LineItem::find($data['lineItemId']);
+        $lineItem->price = $data['price'];
+        $lineItem->quantity = $data['quantity'];
+        $lineItem->save();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $lineItem
+        ]);
+    }
 }
